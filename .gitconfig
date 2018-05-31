@@ -1,0 +1,50 @@
+[user]
+  name = Dean Strelau
+  email = dstrelau@magicleap.com
+[alias]
+  current-branch = rev-parse --abbrev-ref HEAD
+  count = shortlog -sn
+  amend = commit --amend -C HEAD
+  co = checkout
+  tmp = !sh -c 'git add --all && git commit -m TMP'
+  pmt = reset head~
+  ignored = !git ls-files --others --ignored --exclude-standard
+  headless = !sh -c 'git symbolic-ref HEAD refs/heads/$0 && rm .git/index && git clean -fdx'
+  untag = !sh -c 'git tag -d $0 && git push origin :refs/tags/$0'
+  publish = !sh -c 'git push --set-upstream origin $(git current-branch)'
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+  lga = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --all
+  cleanup = !sh -c 'git branch --merged | grep -v \\* | xargs git branch -d'
+  changes = diff --stat development...head
+  pr = !sh -c 'git publish | grep https://bitbucket.org | cut -f2 -d" " | xargs open'
+[core]
+  excludesfile = /Users/dstrelau/.gitignore.global
+  whitespace = trailing-space
+  editor = vim
+[status]
+  showUntrackedFiles = all
+[transfer]
+  fsckobjects = true
+[diff]
+  tool = vimdiff
+[merge]
+  log = true
+  stat = false
+[mirror]
+  summary = true
+[branch]
+  autosetupmerge = true
+[push]
+  default = tracking
+[color]
+  branch = auto
+  diff = auto
+  status = auto
+[rerere]
+  enabled = true
+[help]
+  autocorrect = 10
+[credential]
+  helper = store
+[url "git@bitbucket.org:"]
+  insteadOf = https://bitbucket.org/

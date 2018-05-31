@@ -1,0 +1,25 @@
+snippet rrw " " i
+rw http.ResponseWriter, r *http.Request
+endsnippet
+
+snippet fpf " "
+fmt.Printf("$1: %+v\n", ${1:obj})
+endsnippet
+
+snippet trun
+t.Run("${1}", func(t *testing.T) {
+	$0
+})
+endsnippet
+
+snippet test
+func Test${1:Stuff}(t *testing.T) {
+	$0
+}
+endsnippet
+
+snippet ierr
+if ${1:err} != nil {
+	${0:return $1}
+}
+endsnippet

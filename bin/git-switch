@@ -1,0 +1,8 @@
+#!/bin/bash
+
+git branch -a \
+  | grep -v \\* \
+  | sed -e 's/^[ \t\]*//' \
+  | fzf --preview='git diff --color=always --stat development...{}' --preview-window=top:33%\
+  | sed 's^remotes/origin/^^' \
+  | xargs git co
