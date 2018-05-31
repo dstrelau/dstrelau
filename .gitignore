@@ -27,6 +27,7 @@
 .mlw/
 .node-gyp/
 .npm/
+.nvm/
 .oracle_jre_usage/
 .rbenv-vars
 .rbenv-version
@@ -49,9 +50,12 @@ vim-go-test-compile
 
 Applications/
 Desktop/
+Documents/
 Downloads/
-Dropbox/
+Dropbox*
 Library/
 Music/
+Pictures/
+Public/
 code/
 tmp/
