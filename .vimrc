@@ -4,23 +4,13 @@ filetype plugin indent on
 call plug#begin('~/.vim/plugged')
 Plug 'SirVer/ultisnips'
 Plug 'aklt/plantuml-syntax'
-Plug 'altercation/vim-colors-solarized'
-Plug 'buoto/gotests-vim'
 Plug 'chriskempson/base16-vim'
 Plug 'danro/rename.vim'
 Plug 'fatih/vim-go'
-Plug 'godlygeek/tabular'
-Plug 'hail2u/vim-css3-syntax'
 Plug 'hashivim/vim-terraform'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
 Plug 'kana/vim-textobj-user'
-Plug 'mtscout6/vim-cjsx'
-Plug 'mxw/vim-jsx'
-Plug 'othree/es.next.syntax.vim'
-Plug 'othree/javascript-libraries-syntax.vim'
-Plug 'othree/yajs.vim'
-Plug 'pangloss/vim-javascript'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
@@ -35,7 +25,7 @@ endif
 
 set autowrite                  " auto-save current buffer when switching/making
 set backspace=indent,eol,start " try to make deleting work not crazy
-set completeopt=menu,menuone   " no preview window for completions
+set completeopt=menu,menuone,preview   " no preview window for completions
 set directory=~/.vim/tmp//     " damn .swp files
 set expandtab                  " soft tabs
 set emoji                      " 😎
@@ -78,6 +68,7 @@ autocmd BufEnter * sign define dummy
 autocmd BufEnter * execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
 
 let mapleader = ","
+let maplocalleader = ","
 
 " expand working directory inline
 cmap %% <C-R>=expand('%:h').'/'<cr>
@@ -113,7 +104,7 @@ nmap <Leader>= :Tab /=<CR>
 " rebuild ctags
 nmap <Leader>ct :!ctags -R .<CR>
 " edit in cwd
-nmap <leader>e :edit %%
+nmap <Leader>e :e %%<C-D>
 " switch current window to current file's cwd
 map <leader>cd :lcd %:h<CR>
 " quickly switch back to previous buffer
@@ -154,12 +145,26 @@ endfunction
 
 let g:terraform_fmt_on_save = 1
 
-let g:go_updatetime = 400
+let g:go_gocode_propose_source = 0
+let g:go_gocode_propose_builtins = 1
+let g:go_gocode_unimported_packages = 1
+
+let g:go_highlight_array_whitespace_error = 1
+let g:go_highlight_chan_whitespace_error = 1
+let g:go_highlight_extra_types = 1
+let g:go_highlight_space_tab_error = 1
+let g:go_highlight_trailing_whitespace_error = 1
+let g:go_highlight_functions = 1
+let g:go_highlight_variable_declarations = 1
+let g:go_highlight_types = 1
+
 let g:go_auto_type_info = 1
+let g:go_info_mode = 'gopls'
+let g:go_def_mode='gopls'
+let g:go_decls_mode='fzf'
 let g:go_fmt_autosave = 1
 let g:go_fmt_command = "goimports"
 let g:go_fmt_experimental = 1
-let g:go_gocode_unimported_packages = 1
 let g:go_list_type = ""
 let g:go_metalinter_autosave = 0
 let g:go_metalinter_autosave_enabled = ['gofmt', 'vet', 'golint', 'errcheck', 'vetshadow']
@@ -167,6 +172,9 @@ let g:go_metalinter_deadline = "30s"
 let g:go_metalinter_enabled = ['gofmt', 'vet', 'golint', 'errcheck', 'vetshadow', 'unused']
 let g:go_template_use_pkg = 1 " always use just package name in template
 let g:go_build_tags = 'unit integration'
+let g:go_fmt_options = {
+      \ 'goimports': '-local bitbucket.org/mlcloud',
+      \ }
 
 let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/UltiSnips/']
 let g:UltiSnipsEditSplit="vertical"
@@ -175,17 +183,19 @@ let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
 autocmd BufNewFile,BufRead Dockerfile setlocal noexpandtab tabstop=4 shiftwidth=4
 autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4 foldmethod=syntax
-autocmd FileType go nmap <Leader>gT <Plug>(go-test-func)
-autocmd FileType go nmap <Leader>ga <Plug>(go-alternate-edit)
-autocmd FileType go nmap <Leader>gb :<C-u>call <SID>build_go_files()<CR>
-autocmd FileType go nmap <Leader>gd <Plug>(go-doc)
-autocmd FileType go nmap <Leader>ge <Plug>(go-err-check)
-autocmd FileType go nmap <Leader>gi <Plug>(go-imports)
-autocmd FileType go nmap <Leader>gl <Plug>(go-metalinter)
-autocmd FileType go nmap <Leader>gn <Plug>(go-info)
-autocmd FileType go nmap <Leader>gr <Plug>(go-run)
-autocmd FileType go nmap <Leader>gt <Plug>(go-test)
-autocmd FileType go nmap <Leader>gf :GoFillStruct<CR>
-autocmd FileType go nmap <Leader><C-]> <Plug>(go-def-tab)
+autocmd FileType go nmap <LocalLeader>gT <Plug>(go-test-func)
+autocmd FileType go nmap <LocalLeader>ga <Plug>(go-alternate-edit)
+autocmd FileType go nmap <LocalLeader>gb :<C-u>call <SID>build_go_files()<CR>
+autocmd FileType go nmap <LocalLeader>gd <Plug>(go-decls-dir)
+autocmd FileType go nmap <LocalLeader>gn <Plug>(go-info)
+autocmd FileType go nmap <LocalLeader>ge <Plug>(go-err-check)
+autocmd FileType go nmap <LocalLeader>gi <Plug>(go-imports)
+autocmd FileType go nmap <LocalLeader>gl <Plug>(go-metalinter)
+autocmd FileType go nmap <LocalLeader>gr <Plug>(go-run)
+autocmd FileType go nmap <LocalLeader>gt <Plug>(go-test)
+autocmd FileType go nmap <LocalLeader>gf :GoFillStruct<CR>
+autocmd FileType go nmap <LocalLeader><C-]> <Plug>(go-def-tab)
+autocmd FileType go nmap <C-[> <Plug>(go-def-type)
+autocmd FileType go iabbrev ierr <C-o>:GoIfErr<CR>
 
 autocmd BufWinEnter * if &buftype == 'terminal' | setlocal nowrap | endif

@@ -15,10 +15,10 @@ env:
 
 # (changes require restart)
 window:
-  decorations: true
+  decorations: none
   dimensions:
-    columns: 140
-    lines: 140
+    columns: 256
+    lines: 66
   # Units are physical pixels; this is not DPI aware.
   padding:
     x: 4
@@ -43,15 +43,15 @@ font:
   # Offset is the extra space around each character. offset.y can be thought of
   # as modifying the linespacing, and offset.x as modifying the letter spacing.
   offset:
-    x: 0.0
-    y: 0.0
+    x: 0
+    y: 0
 
   # Glyph offset determines the locations of the glyphs within their cells with
   # the default being at the bottom. Increase the x offset to move the glyph to
   # the right, increase the y offset to move the glyph upward.
   glyph_offset:
-    x: 0.0
-    y: 0.0
+    x: 0
+    y: 0
 
   # OS X only: use thin stroke font rendering. Thin strokes are suitable
   # for retina displays, but for non-retina you probably want this set to
@@ -60,10 +60,6 @@ font:
 
 # Should display the render timer
 render_timer: false
-
-# Use custom cursor colors. If true, display the cursor in the cursor.foreground
-# and cursor.background colors, otherwise invert the colors of the cursor.
-custom_cursor_colors: false
 
 # Colors (Tomorrow Night Bright)
 colors:
@@ -175,25 +171,28 @@ mouse:
   # scrolling for applications like `man`.
   #
   # To disable this completely, set `faux_scrollback_lines` to 0.
-  faux_scrollback_lines: 1
+  faux_scrolling_lines: 0
 
 selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>"
 
 dynamic_title: true
 
-hide_cursor_when_typing: true
+mouse.hide_when_typing: true
 
 # Style of the cursor
 #
-# Values for 'cursor_style':
+# Values for 'cursor.style':
 # - Block
 # - Underline
 # - Beam
-cursor_style: Block
+cursor.style: Block
 
 # Live config reload (changes require restart)
 live_config_reload: true
+
+# Send ESC (\x1b) before characters when alt is pressed.
+alt_send_esc: true
 
 # Shell
 #
@@ -243,20 +242,10 @@ live_config_reload: true
 
 #### THESE DO NOT RESPECT OS-LAYER KEYBOARD LAYOUT SETTINGS ####
 key_bindings:
-  - { key: Period,   mods: Command, action: Paste                        }
-  - { key: I,        mods: Command, action: Copy                         }
-  - { key: Comma,    mods: Command, action: Quit                         }
-  - { key: X,        mods: Command, action: Quit                         }
-
-  # map alt keys, keeping in mind querty -> dvorak wonkiness.
-  - { key: N,        mods: Alt,     chars: "\x1bb"                       }
-  - { key: Y,        mods: Alt,     chars: "\x1bf"                       }
+  # map common alt keys
+  - { key: B,        mods: Alt,     chars: "\x1bb"                       }
+  - { key: F,        mods: Alt,     chars: "\x1bf"                       }
   - { key: A,        mods: Alt,     chars: "\x1ba"                       }
-
-  # - { key: Home,     chars: "\x1bOH",   mode: AppCursor   }
-  # - { key: Home,     chars: "\x1b[H",   mode: ~AppCursor  }
-  # - { key: End,      chars: "\x1bOF",   mode: AppCursor   }
-  # - { key: End,      chars: "\x1b[F",   mode: ~AppCursor  }
 
   - { key: Key0,     mods: Command, action: ResetFontSize                }
   - { key: Equals,   mods: Command, action: IncreaseFontSize             }

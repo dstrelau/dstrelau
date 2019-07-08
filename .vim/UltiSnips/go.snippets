@@ -1,9 +1,5 @@
-snippet rrw " " i
-rw http.ResponseWriter, r *http.Request
-endsnippet
-
-snippet fpf " "
-fmt.Printf("$1: %+v\n", ${1:obj})
+snippet rwr " " i
+w http.ResponseWriter, r *http.Request
 endsnippet
 
 snippet trun
@@ -18,8 +14,42 @@ func Test${1:Stuff}(t *testing.T) {
 }
 endsnippet
 
-snippet ierr
-if ${1:err} != nil {
-	${0:return $1}
+snippet tt "" i
+t *testing.T
+endsnippet
+
+snippet tlf
+t.Logf("${1:obj}: %+v\n", $1)
+endsnippet
+
+# snippet ierr
+# if err := ${1} ; err != nil {
+# 	$0
+# }
+# endsnippet
+
+snippet errn
+if err != nil {
+	${0:return err}
 }
+endsnippet
+
+snippet ccc "" i
+ctx context.Context
+endsnippet
+
+snippet mw "" i
+func(http.Handler) http.Handler
+endsnippet
+
+snippet mwdef "" i
+return func(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		$0
+	})
+}
+endsnippet
+
+snippet spew
+spew.Dump(${1})$0
 endsnippet

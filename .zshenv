@@ -31,12 +31,7 @@ PROMPT='%{$fg[magenta]%}[%c]%{$reset_color%} '
 RPROMPT='%{$fg[blue]%}${AWS_VAULT}%{$reset_color%} %{$fg[magenta]%}$(git_prompt_info)%{$reset_color%}'
 
 ########################### ENV ###########################
-export GOPATH=$HOME/code
-
-export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
-export PATH=$PATH:/usr/local/share/npm/bin
-export PATH=$PATH:$HOME/.cargo/bin
-export PATH=$PATH:$GOPATH/bin
+export PATH=$HOME/bin:$HOME/go/bin:/usr/local/opt/ruby/bin:/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
 
 export EDITOR=vim
 export PAGER=less
@@ -45,10 +40,11 @@ export GREP_OPTIONS='--color=auto'
 export GREP_COLOR='1;32'
 export FZF_DEFAULT_COMMAND='ag -l -g ""'
 export LOG_FORMAT=colored
-export LOG_LEVEL=debug
+export LOG_LEVEL=info
 export AWS_DEFAULT_REGION=us-east-1
 export AWS_REGION=$AWS_DEFAULT_REGION
 export BREW_PREFIX=$(brew --prefix)
+export NVM_DIR="$HOME/.nvm"
 
 ######################### history ##########################
 
@@ -95,6 +91,9 @@ autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '^x^e' edit-command-line
 
+# ctrl-w should stop at slashes
+WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+
 ######################### brewed ##########################
 
 [[ -s $BREW_PREFIX/etc/autojump.sh ]] && . $BREW_PREFIX/etc/autojump.sh
@@ -105,6 +104,9 @@ BASE16_SHELL=$HOME/.config/base16-shell/
 [[ -s $BREW_PREFIX/bin/aws_zsh_completer.sh ]] && . $BREW_PREFIX/bin/aws_zsh_completer.sh
 
 [[ -s /usr/local/bin/env_parallel.zsh ]] && . /usr/local/bin/env_parallel.zsh
+
+# this takes FOREVER to load
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 ######################################################
 for config_file ($HOME/.zsh/*.zsh) source $config_file

@@ -55,13 +55,43 @@ function llog() {
 }
 
 function nlog() {
-	LOG=$(awslogs groups | grep $1)
+	LOG=$(saw groups | grep $1)
 	echo $LOG
-	awslogs get -G -S -w $LOG
+	saw watch --expand $LOG
+}
+
+function cwtail(){
+    if [ "$#" -eq 1 ]; then
+        echo saw watch --expand $1
+        saw watch --expand $1
+    else
+        saw groups | fzf -m | parallel --verbose --linebuffer saw watch --expand
+    fi
 }
 
 function asdf() {
 	ruby -run -ehttpd . -p ${1:-8000}
+}
+
+function dollars() {
+	pbpaste | sed 's/\[.*\]/$/' | sed 's/[[:space:]]*(.*)//' | pbcopy
+}
+
+function awslocal() {
+	case "$1" in
+		"sns")
+			aws --endpoint-url=http://localhost:4575 $@
+			;;
+		"sqs")
+			aws --endpoint-url=http://localhost:4576 $@
+			;;
+		"dynamodb")
+			aws --endpoint-url=http://localhost:4569 $@
+			;;
+		*)
+			echo >&2 "No endpoint mapping for $1"
+			;;
+	esac
 }
 
 # vim: noet:ft=zsh:ts=4:sw=4
