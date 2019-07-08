@@ -6,6 +6,7 @@
 .DS_Store
 .account
 .config/hub
+.env
 .flyrc
 .lesshst
 .localstack
