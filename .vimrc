@@ -1,13 +1,17 @@
 " filetype detection with indenting
 filetype plugin indent on
 
+" must be before loading merlin below
+let no_ocaml_maps=1
+
 call plug#begin('~/.vim/plugged')
 Plug 'SirVer/ultisnips'
 Plug 'aklt/plantuml-syntax'
 Plug 'chriskempson/base16-vim'
 Plug 'danro/rename.vim'
+Plug 'dense-analysis/ale'
+Plug 'derekwyatt/vim-fswitch'
 Plug 'fatih/vim-go'
-Plug 'hashivim/vim-terraform'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
 Plug 'kana/vim-textobj-user'
@@ -15,6 +19,8 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
+
+Plug '~/.opam/4.07.1/share/merlin', { 'for': ['ocaml', 'merlin' ], 'rtp': 'vim' }
 call plug#end()
 
 syntax enable
@@ -48,8 +54,10 @@ set modelines=2                " search top/bottom 2 lines for modelines
 set nobackup                   " don't keep backup file
 set noerrorbells               " turn off error bells
 set number                     " show line numbers
+set omnifunc=ale#completion#OmniFunc " Use ALE's function for omnicompletion.
 set ruler                      " show the cursor position in status bar
 set scrolloff=5                " keep 5 lines of context around cursor
+set shell=/bin/bash
 set shiftwidth=2
 set showcmd                    " show commands as they are typed
 set showmatch                  " show matching () {} etc
@@ -125,6 +133,8 @@ nmap <leader>bd :%bd<CR><C-O>:bd#<CR>
 nmap <leader>a :Ag<CR>
 " Ag for cword
 nmap <leader>A :Ag <C-R>=expand("<cword>")<CR><CR>
+" gs is a stupid mapping anyway
+nmap gs :FSHere<CR>
 
 " use preview window for :Ag
 command! -bang -nargs=* Ag
@@ -132,6 +142,49 @@ command! -bang -nargs=* Ag
   \                 <bang>0 ? fzf#vim#with_preview('up:60%')
   \                         : fzf#vim#with_preview('right:50%'),
   \                 <bang>0)
+
+function! UnhighlightMerlinIfDefined()
+  if exists(":MerlinClearEnclosing")
+    execute "MerlinClearEnclosing"
+  endif
+endfunction
+
+autocmd FileType ocaml nmap <buffer> <Leader><CR> :nohlsearch\|wa<CR>:call UnhighlightMerlinIfDefined()<CR><C-g>
+autocmd FileType ocaml nmap <buffer> gi :MerlinTypeOf<CR>
+autocmd FileType ocaml nmap <buffer> <C-]> :MerlinLocate<CR>
+autocmd BufEnter *.ml let b:fswitchdst = 'mli'| let b:fswitchlocs = '.'
+autocmd BufEnter *.mli let b:fswitchdst = 'ml'| let b:fswitchlocs = '.'
+
+let g:merlin_split_method = "never"
+let g:merlin_locate_preference = 'ml'
+
+if isdirectory(expand("~/src/darklang/dark/scripts"))
+  let g:ale_ocaml_ocamlformat_executable=expand('~/src/darklang/dark/scripts/ocamlformat')
+  let g:ale_javascript_prettier_executable=expand('~/src/darklang/dark/scripts/prettier')
+endif
+
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_insert_leave = 0
+let g:ale_fix_on_save = 1
+let g:ale_lint_on_save = 1
+let g:ale_set_highlights = 0
+let g:ale_linters =
+\ {'rust': ['rls']}
+let g:ale_fixers =
+\ {'rust': ['rustfmt'],
+\  'ocaml':['ocamlformat'],
+\  'javascript': ['prettier'],
+\  'js': ['prettier'],
+\  'html': ['prettier'],
+\  'css': ['prettier'],
+\  'scss': ['prettier']}
+
+nmap <silent> [e <Plug>(ale_previous_wrap)
+nmap <silent> ]e <Plug>(ale_next_wrap)
+
+autocmd FileType rust nmap <C-[> <Plug>(ale_go_to_type_definition)
+autocmd FileType rust nmap <C-]> <Plug>(ale_go_to_definition)
+autocmd FileType rust nmap gi <Plug>(ale_hover)
 
 " run :GoBuild or :GoTestCompile based on the go file
 function! s:build_go_files()
@@ -142,6 +195,9 @@ function! s:build_go_files()
     call go#cmd#Build(0)
   endif
 endfunction
+
+" don't clobber <C-C> in sql files.
+let g:ftplugin_sql_omni_key = '<C-S>'
 
 let g:terraform_fmt_on_save = 1
 
@@ -196,6 +252,6 @@ autocmd FileType go nmap <LocalLeader>gt <Plug>(go-test)
 autocmd FileType go nmap <LocalLeader>gf :GoFillStruct<CR>
 autocmd FileType go nmap <LocalLeader><C-]> <Plug>(go-def-tab)
 autocmd FileType go nmap <C-[> <Plug>(go-def-type)
-autocmd FileType go iabbrev ierr <C-o>:GoIfErr<CR>
 
-autocmd BufWinEnter * if &buftype == 'terminal' | setlocal nowrap | endif
+silent! helptags ALL
+

@@ -1,6 +1,6 @@
 [user]
   name = Dean Strelau
-  email = dstrelau@magicleap.com
+  email = dean@darklang.com
 [alias]
   current-branch = rev-parse --abbrev-ref HEAD
   count = shortlog -sn
@@ -15,7 +15,7 @@
   lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
   lga = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --all
   cleanup = !sh -c 'git branch --merged | grep -v \\* | xargs git branch -d'
-  changes = diff --stat development...head
+  changes = diff --stat master...head
   pr = !sh -c 'git publish | grep https://bitbucket.org | cut -f2 -d" " | xargs open'
 [core]
   excludesfile = /Users/dstrelau/.gitignore.global

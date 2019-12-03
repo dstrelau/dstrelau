@@ -21,22 +21,26 @@ FIXME
 tags
 vim-go-test-compile
 
+.SynologyDrive/
 .Trash/
 .apex/
 .aws/
 .bundle/
 .cargo/
 .config/base16-shell/
+.config/gcloud/
 .docker/
 .dropbox/
 .fzf/
 .gem/
 .gnupg/
+.gsutil/
 .m2/
 .mitmproxy/
 .node-gyp/
 .npm/
 .nvm/
+.opam/
 .oracle_jre_usage/
 .rustup/
 .stack/
@@ -49,6 +53,7 @@ Applications/
 Desktop/
 Documents/
 Downloads/
+Drive/
 Dropbox*
 Library/
 Movies/
@@ -56,11 +61,6 @@ Music/
 Pictures/
 Public/
 bin/
-code/
 go/
+src/
 tmp/
-
-.ml/
-.mlw/
-.magicleap/
-ML/

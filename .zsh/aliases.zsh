@@ -25,8 +25,7 @@ alias bb='bundle | grep -v Using'
 alias b='bundle exec'
 
 alias todo="git grep --untracked -inE '(TODO|FIXME)' ':!vendor'"
-alias g='git switch'
-alias git='nocorrect hub'
+alias g='git-fzf-branch'
 alias gaa='git add --all'
 alias gb='git branch'
 alias gba='git branch -a'
@@ -37,10 +36,10 @@ alias ga='git add'
 alias gd='git diff'
 alias gdt='git difftool -y'
 alias gdc='git diff --cached'
+alias gpf='git push --force-with-lease'
 alias gf='git fuzzy'
 alias tiga='tig --all'
-alias up='git up'
-# compdef hub=git
+alias up='hub sync'
 
 alias gv=govendor
 function gml() {

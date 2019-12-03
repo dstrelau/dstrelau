@@ -31,7 +31,7 @@ PROMPT='%{$fg[magenta]%}[%c]%{$reset_color%} '
 RPROMPT='%{$fg[blue]%}${AWS_VAULT}%{$reset_color%} %{$fg[magenta]%}$(git_prompt_info)%{$reset_color%}'
 
 ########################### ENV ###########################
-export PATH=$HOME/bin:$HOME/go/bin:/usr/local/opt/ruby/bin:/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
+export PATH=$HOME/bin:$HOME/go/bin:$HOME/.cargo/bin:/usr/local/opt/ruby/bin:/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
 
 export EDITOR=vim
 export PAGER=less
@@ -107,6 +107,16 @@ BASE16_SHELL=$HOME/.config/base16-shell/
 
 # this takes FOREVER to load
 # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# opam configuration
+# [[ -r $HOME/.opam/opam-init/init.zsh ]] && . $HOME/.opam/opam-init/init.zsh 2>&1 >/dev/null
+eval $(opam env)
+
+
+if [[ -s /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk ]] ; then
+  . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc' &&
+  . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc'
+fi
 
 ######################################################
 for config_file ($HOME/.zsh/*.zsh) source $config_file

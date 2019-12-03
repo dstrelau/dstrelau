@@ -15,7 +15,7 @@ env:
 
 # (changes require restart)
 window:
-  decorations: none
+  decorations: full
   dimensions:
     columns: 256
     lines: 66
@@ -23,6 +23,8 @@ window:
   padding:
     x: 4
     y: 4
+  startup_mode: Maximized
+
 
 # Display tabs using this many cells (changes require restart)
 tabspaces: 8
@@ -38,7 +40,7 @@ font:
     family: Consolas
   italic:
     family: Consolas
-  size: 15.0
+  size: 14.0
 
   # Offset is the extra space around each character. offset.y can be thought of
   # as modifying the linespacing, and offset.x as modifying the letter spacing.
@@ -59,7 +61,7 @@ font:
   use_thin_strokes: false
 
 # Should display the render timer
-render_timer: false
+debug.render_timer: false
 
 # Colors (Tomorrow Night Bright)
 colors:
@@ -246,6 +248,7 @@ key_bindings:
   - { key: B,        mods: Alt,     chars: "\x1bb"                       }
   - { key: F,        mods: Alt,     chars: "\x1bf"                       }
   - { key: A,        mods: Alt,     chars: "\x1ba"                       }
+  - { key: L,        mods: Control, action: None                         }
 
   - { key: Key0,     mods: Command, action: ResetFontSize                }
   - { key: Equals,   mods: Command, action: IncreaseFontSize             }
