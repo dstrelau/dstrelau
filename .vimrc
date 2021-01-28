@@ -2,16 +2,16 @@
 filetype plugin indent on
 
 " must be before loading merlin below
-let no_ocaml_maps=1
 
 call plug#begin('~/.vim/plugged')
 Plug 'SirVer/ultisnips'
 Plug 'aklt/plantuml-syntax'
 Plug 'chriskempson/base16-vim'
 Plug 'danro/rename.vim'
-Plug 'dense-analysis/ale'
+" Plug 'dense-analysis/ale'
 Plug 'derekwyatt/vim-fswitch'
 Plug 'fatih/vim-go'
+Plug 'hashivim/vim-terraform'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
 Plug 'kana/vim-textobj-user'
@@ -20,7 +20,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 
-Plug '~/.opam/4.07.1/share/merlin', { 'for': ['ocaml', 'merlin' ], 'rtp': 'vim' }
+" Plug '~/.opam/4.07.1/share/merlin', { 'for': ['ocaml', 'merlin' ], 'rtp': 'vim' }
 call plug#end()
 
 syntax enable
@@ -31,7 +31,6 @@ endif
 
 set autowrite                  " auto-save current buffer when switching/making
 set backspace=indent,eol,start " try to make deleting work not crazy
-set completeopt=menu,menuone,preview   " no preview window for completions
 set directory=~/.vim/tmp//     " damn .swp files
 set expandtab                  " soft tabs
 set emoji                      " 😎
@@ -42,7 +41,7 @@ set foldminlines=2             " don't fold a single line
 set foldlevel=99               " start with no folding
 set foldnestmax=1              " only 2 nested folds
 set grepformat=%f:%l:%c:%m
-set grepprg=ag\ --ignore\ log\ --column\ $*
+set grepprg=rg\ --ignore\ log\ --column\ $*
 set hidden                     " don't unload abandoned bufferes
 set hlsearch                   " highlight search matches
 set ignorecase                 " ignore case in patterns
@@ -54,7 +53,7 @@ set modelines=2                " search top/bottom 2 lines for modelines
 set nobackup                   " don't keep backup file
 set noerrorbells               " turn off error bells
 set number                     " show line numbers
-set omnifunc=ale#completion#OmniFunc " Use ALE's function for omnicompletion.
+" set omnifunc=ale#completion#OmniFunc " Use ALE's function for omnicompletion.
 set ruler                      " show the cursor position in status bar
 set scrolloff=5                " keep 5 lines of context around cursor
 set shell=/bin/bash
@@ -69,6 +68,14 @@ set tabstop=2
 set updatetime=800
 set visualbell                 " seriously no error bells
 set wildmenu                   " better file menu
+
+set completeopt=menu,menuone,preview " show menu and preview for autocomplete
+" close preview when completion is done
+augroup completion_preview_close
+  autocmd!
+  autocmd BufWritePost *.go if !&previewwindow && &completeopt =~ 'preview' | silent! pclose | endif
+augroup END
+
 
 autocmd BufWritePre * %s/\s\+$//e " Auto-strip trailing whitespace on write
 " always show gutter column even if empty
@@ -130,18 +137,11 @@ nmap <leader>bl :Buffers<CR>
 " close all buffers but current
 nmap <leader>bd :%bd<CR><C-O>:bd#<CR>
 " pop Ag
-nmap <leader>a :Ag<CR>
+nmap <leader>a :Rg<CR>
 " Ag for cword
-nmap <leader>A :Ag <C-R>=expand("<cword>")<CR><CR>
+nmap <leader>A :Rg <C-R>=expand("<cword>")<CR><CR>
 " gs is a stupid mapping anyway
 nmap gs :FSHere<CR>
-
-" use preview window for :Ag
-command! -bang -nargs=* Ag
-  \ call fzf#vim#ag(<q-args>,
-  \                 <bang>0 ? fzf#vim#with_preview('up:60%')
-  \                         : fzf#vim#with_preview('right:50%'),
-  \                 <bang>0)
 
 function! UnhighlightMerlinIfDefined()
   if exists(":MerlinClearEnclosing")
@@ -157,11 +157,6 @@ autocmd BufEnter *.mli let b:fswitchdst = 'ml'| let b:fswitchlocs = '.'
 
 let g:merlin_split_method = "never"
 let g:merlin_locate_preference = 'ml'
-
-if isdirectory(expand("~/src/darklang/dark/scripts"))
-  let g:ale_ocaml_ocamlformat_executable=expand('~/src/darklang/dark/scripts/ocamlformat')
-  let g:ale_javascript_prettier_executable=expand('~/src/darklang/dark/scripts/prettier')
-endif
 
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_lint_on_insert_leave = 0
@@ -201,9 +196,9 @@ let g:ftplugin_sql_omni_key = '<C-S>'
 
 let g:terraform_fmt_on_save = 1
 
-let g:go_gocode_propose_source = 0
-let g:go_gocode_propose_builtins = 1
-let g:go_gocode_unimported_packages = 1
+" let g:go_gocode_propose_source = 0
+" let g:go_gocode_propose_builtins = 1
+" let g:go_gocode_unimported_packages = 1
 
 let g:go_highlight_array_whitespace_error = 1
 let g:go_highlight_chan_whitespace_error = 1
@@ -213,24 +208,38 @@ let g:go_highlight_trailing_whitespace_error = 1
 let g:go_highlight_functions = 1
 let g:go_highlight_variable_declarations = 1
 let g:go_highlight_types = 1
-
 let g:go_auto_type_info = 1
-let g:go_info_mode = 'gopls'
-let g:go_def_mode='gopls'
-let g:go_decls_mode='fzf'
+let g:go_doc_popup_window = 1
+
+let g:go_fmt_command = "gopls"
 let g:go_fmt_autosave = 1
-let g:go_fmt_command = "goimports"
-let g:go_fmt_experimental = 1
+let g:go_fmt_options = { 'goimports': '-local github.com/honeycombio', }
+let g:go_imports_mode = "goimports"
+let g:go_imports_autosave = 1
+let g:go_gopls_gofumt= v:true
+
+let g:go_def_mode='gopls'
+let g:go_info_mode = 'gopls'
+let g:go_decls_mode='fzf'
 let g:go_list_type = ""
+" let g:go_debug = ['lsp']
+let g:go_build_tags = ''
+
+let g:go_metalinter_command = 'golangci-lint'
 let g:go_metalinter_autosave = 0
-let g:go_metalinter_autosave_enabled = ['gofmt', 'vet', 'golint', 'errcheck', 'vetshadow']
+" let g:go_metalinter_autosave_enabled = ['gofmt', 'vet', 'golint', 'errcheck', 'vetshadow']
 let g:go_metalinter_deadline = "30s"
-let g:go_metalinter_enabled = ['gofmt', 'vet', 'golint', 'errcheck', 'vetshadow', 'unused']
+
+" set explicitly to empty, otherwise vim-go will try to use a bunch of default
+" flags to golangci-lint. This will just use the defaults (and specifically,
+" the config file by default)
+let g:go_metalinter_enabled = []
+
 let g:go_template_use_pkg = 1 " always use just package name in template
-let g:go_build_tags = 'unit integration'
-let g:go_fmt_options = {
-      \ 'goimports': '-local bitbucket.org/mlcloud',
-      \ }
+
+" SpellBad / SpellRare used for go errors/warnings also
+highlight SpellBad  cterm=undercurl ctermfg=9 ctermbg=0
+highlight SpellRare cterm=undercurl ctermfg=13 ctermbg=0
 
 let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/UltiSnips/']
 let g:UltiSnipsEditSplit="vertical"
@@ -250,8 +259,9 @@ autocmd FileType go nmap <LocalLeader>gl <Plug>(go-metalinter)
 autocmd FileType go nmap <LocalLeader>gr <Plug>(go-run)
 autocmd FileType go nmap <LocalLeader>gt <Plug>(go-test)
 autocmd FileType go nmap <LocalLeader>gf :GoFillStruct<CR>
+autocmd FileType go nmap <LocalLeader>gp :!pkill gopls<CR>
 autocmd FileType go nmap <LocalLeader><C-]> <Plug>(go-def-tab)
-autocmd FileType go nmap <C-[> <Plug>(go-def-type)
+" autocmd FileType go nmap <C-[> <Plug>(go-def-type)
 
 silent! helptags ALL
 
