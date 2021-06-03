@@ -3,6 +3,6 @@
 git branch -a \
   | grep -v \* \
   | sed 's/^[[:blank:]]*//' \
-  | fzf --preview='git diff --color=always --stat master...{}' --preview-window=top:33% \
+  | fzf --preview='git diff --color=always --stat main...{}' --preview-window=top:33% \
   | sed 's^remotes/origin/^^' \
   | xargs git co
