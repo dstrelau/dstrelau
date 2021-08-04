@@ -1,17 +1,16 @@
 " filetype detection with indenting
 filetype plugin indent on
 
-" must be before loading merlin below
+let g:python3_host_prog = '/opt/homebrew/bin/python3'
 
 call plug#begin('~/.vim/plugged')
 Plug 'SirVer/ultisnips'
 Plug 'aklt/plantuml-syntax'
 Plug 'chriskempson/base16-vim'
 Plug 'danro/rename.vim'
-" Plug 'dense-analysis/ale'
 Plug 'derekwyatt/vim-fswitch'
 Plug 'fatih/vim-go'
-Plug 'hashivim/vim-terraform'
+" Plug 'hashivim/vim-terraform'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
 Plug 'kana/vim-textobj-user'
@@ -20,7 +19,20 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 
-" Plug '~/.opam/4.07.1/share/merlin', { 'for': ['ocaml', 'merlin' ], 'rtp': 'vim' }
+if has('nvim')
+  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'nvim-treesitter/nvim-treesitter-refactor'
+  Plug 'neovim/nvim-lspconfig'
+  Plug 'nvim-lua/completion-nvim'
+  Plug 'nvim-lua/popup.nvim'
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'nvim-telescope/telescope.nvim'
+  " Plug 'RRethy/nvim-base16'
+else
+  Plug 'hashivim/vim-terraform'
+  Plug 'SirVer/ultisnips'
+end
+
 call plug#end()
 
 syntax enable
@@ -31,15 +43,18 @@ endif
 
 set autowrite                  " auto-save current buffer when switching/making
 set backspace=indent,eol,start " try to make deleting work not crazy
+
+if has('balloondelay')
+  set balloondelay=250
+endif
 set directory=~/.vim/tmp//     " damn .swp files
-set expandtab                  " soft tabs
 set emoji                      " 😎
-set nofoldenable
-set foldmethod=manual          " syntax folding IS SO SLOW
-set foldopen-=block            " block movement shouldn't open folds
-set foldminlines=2             " don't fold a single line
+set expandtab                  " soft tabs
 set foldlevel=99               " start with no folding
+set foldmethod=manual          " syntax folding IS SO SLOW
+set foldminlines=2             " don't fold a single line
 set foldnestmax=1              " only 2 nested folds
+set foldopen-=block            " block movement shouldn't open folds
 set grepformat=%f:%l:%c:%m
 set grepprg=rg\ --ignore\ log\ --column\ $*
 set hidden                     " don't unload abandoned bufferes
@@ -52,14 +67,15 @@ set listchars=eol:¬,tab:› ,nbsp:•
 set modelines=2                " search top/bottom 2 lines for modelines
 set nobackup                   " don't keep backup file
 set noerrorbells               " turn off error bells
+set nofoldenable
 set number                     " show line numbers
-" set omnifunc=ale#completion#OmniFunc " Use ALE's function for omnicompletion.
 set ruler                      " show the cursor position in status bar
 set scrolloff=5                " keep 5 lines of context around cursor
 set shell=/bin/bash
 set shiftwidth=2
 set showcmd                    " show commands as they are typed
 set showmatch                  " show matching () {} etc
+set signcolumn=number          " use line number column for signs
 set smartcase                  " don't ignorecase if there's a capital
 set smarttab                   " try to get indenting correct
 set splitbelow                 " split to the bottom, not top
@@ -70,6 +86,7 @@ set visualbell                 " seriously no error bells
 set wildmenu                   " better file menu
 
 set completeopt=menu,menuone,preview " show menu and preview for autocomplete
+
 " close preview when completion is done
 augroup completion_preview_close
   autocmd!
@@ -131,9 +148,18 @@ nmap <leader>qq :mks! .vimsession\|wqa<CR>
 
 " FZF.vim integrations
 " fuzzzzzzzy find
-nmap <leader><Space> :Files<CR>
+if has('nvim')
+  nmap <leader><Space> :Telescope find_files<CR>
+else
+  nmap <leader><Space> :Files<CR>
+end
+
 " buffer management
-nmap <leader>bl :Buffers<CR>
+if has('nvim')
+  nmap <leader>bl :Telescope buffers<CR>
+else
+  nmap <leader>bl :Buffers<CR>
+end
 " close all buffers but current
 nmap <leader>bd :%bd<CR><C-O>:bd#<CR>
 " pop Ag
@@ -196,10 +222,7 @@ let g:ftplugin_sql_omni_key = '<C-S>'
 
 let g:terraform_fmt_on_save = 1
 
-" let g:go_gocode_propose_source = 0
-" let g:go_gocode_propose_builtins = 1
-" let g:go_gocode_unimported_packages = 1
-
+" ~~ vim-go ~~
 let g:go_highlight_array_whitespace_error = 1
 let g:go_highlight_chan_whitespace_error = 1
 let g:go_highlight_extra_types = 1
@@ -208,34 +231,28 @@ let g:go_highlight_trailing_whitespace_error = 1
 let g:go_highlight_functions = 1
 let g:go_highlight_variable_declarations = 1
 let g:go_highlight_types = 1
+
 let g:go_auto_type_info = 1
 let g:go_doc_popup_window = 1
-
-let g:go_fmt_command = "gopls"
-let g:go_fmt_autosave = 1
-let g:go_fmt_options = { 'goimports': '-local github.com/honeycombio', }
-let g:go_imports_mode = "goimports"
-let g:go_imports_autosave = 1
-let g:go_gopls_gofumt= v:true
-
-let g:go_def_mode='gopls'
-let g:go_info_mode = 'gopls'
-let g:go_decls_mode='fzf'
-let g:go_list_type = ""
-" let g:go_debug = ['lsp']
-let g:go_build_tags = ''
-
-let g:go_metalinter_command = 'golangci-lint'
-let g:go_metalinter_autosave = 0
-" let g:go_metalinter_autosave_enabled = ['gofmt', 'vet', 'golint', 'errcheck', 'vetshadow']
-let g:go_metalinter_deadline = "30s"
-
-" set explicitly to empty, otherwise vim-go will try to use a bunch of default
-" flags to golangci-lint. This will just use the defaults (and specifically,
-" the config file by default)
-let g:go_metalinter_enabled = []
-
 let g:go_template_use_pkg = 1 " always use just package name in template
+let g:go_decls_mode='fzf' " fzf for decls
+
+let g:go_fmt_autosave = 1
+let g:go_imports_autosave = 1
+let g:go_fmt_command = "gopls"
+let g:go_imports_mode = "goimports"
+let g:go_fmt_options = {
+  \ 'gofmt': '-s',
+  \ 'goimports': '-local github.com/honeycombio',
+  \ }
+let g:go_gopls_gofumpt= v:true " gofumpt instead of gopls for format
+let g:go_gopls_staticcheck = v:true " staticcheck via gopls
+let g:go_gopls_local = "github.com/honeycombio"
+
+" let g:go_diagnostics_level = 1
+" let g:go_debug = ['lsp']
+
+" ~~ /vim-go ~~
 
 " SpellBad / SpellRare used for go errors/warnings also
 highlight SpellBad  cterm=undercurl ctermfg=9 ctermbg=0
@@ -251,7 +268,7 @@ autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4 fold
 autocmd FileType go nmap <LocalLeader>gT <Plug>(go-test-func)
 autocmd FileType go nmap <LocalLeader>ga <Plug>(go-alternate-edit)
 autocmd FileType go nmap <LocalLeader>gb :<C-u>call <SID>build_go_files()<CR>
-autocmd FileType go nmap <LocalLeader>gd <Plug>(go-decls-dir)
+autocmd FileType go nmap <LocalLeader>gd <Plug>(go-def-type)
 autocmd FileType go nmap <LocalLeader>gn <Plug>(go-info)
 autocmd FileType go nmap <LocalLeader>ge <Plug>(go-err-check)
 autocmd FileType go nmap <LocalLeader>gi <Plug>(go-imports)
