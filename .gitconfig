@@ -12,16 +12,21 @@
   ignored = !git ls-files --others --ignored --exclude-standard
   lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
   lga = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --all
+  nb = !sh -c 'git checkout -b dstrelau.$0'
+  oldest-ancestor = !zsh -c 'diff -u <(git rev-list --first-parent "${1:-main}") <(git rev-list --first-parent "${2:-HEAD}") | sed -ne \"s/^ //p\" | head -1' -
   pmt = reset HEAD~
   pr = !sh -c 'git publish | grep https://github.com | cut -f2 -d" " | xargs open'
   publish = !sh -c 'git push --set-upstream origin $(git current-branch)'
+  rm-merged = !git branch --format '%(refname:short) %(upstream:track)' | awk '$2 == \"[gone]\" { print $1 }' | xargs -r git branch -D
+  sync = !git switch main && git pull --prune && git rm-merged
   tmp = !sh -c 'git add --all && git commit -m TMP'
   unstage = restore --staged
   untag = !sh -c 'git tag -d $0 && git push origin :refs/tags/$0'
+
 [core]
   excludesfile = /Users/dstrelau/.gitignore.global
   whitespace = trailing-space
-  editor = vim
+  editor = nvim
 [status]
   showUntrackedFiles = all
 [transfer]
@@ -47,3 +52,7 @@
   autocorrect = 10
 [credential]
   helper = store
+[pull]
+  ff = only
+[init]
+  defaultBranch = main

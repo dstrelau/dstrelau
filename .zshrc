@@ -27,22 +27,35 @@ parse_git_dirty () {
   fi
 }
 
-PROMPT='%{$fg[magenta]%}[%c]%{$reset_color%} '
-RPROMPT='%{$fg[blue]%}${AWS_VAULT}%{$reset_color%} %{$fg[magenta]%}$(git_prompt_info)%{$reset_color%}'
+kubectx() {
+  cur=$(kubectl config current-context 2>/dev/null)
+  if [ -n "$cur" ] ; then
+    ns=$(kubectl config view -o json | jq -r ".contexts[] | select(.name == \"$cur\") | .context.namespace // \"default\"")
+    ctx=$(echo $cur | cut -d/ -f2)
+    echo "$ctx/$ns "
+  fi
+}
+
+PROMPT='%{$fg[blue]%}[%c]%{$reset_color%} '
+RPROMPT='%{$fg[yellow]%}$(kubectx)%{$reset_color%}%{$fg[blue]%}${AWS_PROFILE}%{$reset_color%} %{$fg[magenta]%}$(git_prompt_info)%{$reset_color%}'
+
+eval $(/opt/homebrew/bin/brew shellenv)
 
 ########################### ENV ###########################
-export PATH=$HOME/bin:$HOME/go/bin:$HOME/.cargo/bin:/usr/local/opt/ruby/bin:/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
+export PATH=$HOME/bin:$HOME/go/bin:$HOME/.cargo/bin:$HOME/.krew/bin
+export PATH=$PATH:/usr/local/go/bin
+export PATH=$PATH:/$HOME/.local/bin
+export PATH=$PATH:/opt/homebrew/opt/ruby/bin:/opt/homebrew/opt/npm/bin:/opt/homebrew/bin
+export PATH=$PATH:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
 
-export EDITOR=vim
+export EDITOR=nvim
 export PAGER=less
 export LC_CTYPE=en_US.UTF-8
 export GREP_OPTIONS='--color=auto'
 export GREP_COLOR='1;32'
-export FZF_DEFAULT_COMMAND='ag -l -g ""'
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs'
 export LOG_FORMAT=colored
 export LOG_LEVEL=info
-export AWS_DEFAULT_REGION=us-east-1
-export AWS_REGION=$AWS_DEFAULT_REGION
 export BREW_PREFIX=$(brew --prefix)
 export NVM_DIR="$HOME/.nvm"
 
@@ -64,13 +77,12 @@ setopt SHARE_HISTORY
 setopt APPEND_HISTORY
 
 ######################## completion ########################
-
+FPATH=$BREW_PREFIX/share/zsh/site-functions:$FPATH
 unsetopt menu_complete   # do not autoselect the first completion entry
 unsetopt flowcontrol     # disable ^S/^Q
 setopt auto_menu         # show completion menu on succesive tab press
 setopt always_to_end     # move cursor to end of word if completion from within word
-zstyle ':completion:*:*:git:*' script $BREW_PREFIX/etc/bash_completion.d/git-completion.bash
-autoload -U compinit
+autoload -Uz compinit
 compinit -i
 
 ########################## misc ############################
@@ -98,25 +110,15 @@ WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
 [[ -s $BREW_PREFIX/etc/autojump.sh ]] && . $BREW_PREFIX/etc/autojump.sh
 
-BASE16_SHELL=$HOME/.config/base16-shell/
-[ -n "$PS1" ] && [ -s $BASE16_SHELL/profile_helper.sh ] && eval "$($BASE16_SHELL/profile_helper.sh)"
+if [[ "$TERM" == "xterm-kitty" ]] ; then
+  eval "kitty @ set-colors -c $HOME/.config/kitty/onedark-warmer.conf"
+else
+  bash /Users/dstrelau/.config/base16-shell/scripts/$(cat $HOME/.base16_theme).sh
+fi
 
 [[ -s $BREW_PREFIX/bin/aws_zsh_completer.sh ]] && . $BREW_PREFIX/bin/aws_zsh_completer.sh
 
 [[ -s /usr/local/bin/env_parallel.zsh ]] && . /usr/local/bin/env_parallel.zsh
-
-# this takes FOREVER to load
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-# opam configuration
-# [[ -r $HOME/.opam/opam-init/init.zsh ]] && . $HOME/.opam/opam-init/init.zsh 2>&1 >/dev/null
-eval $(opam env)
-
-
-if [[ -s /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk ]] ; then
-  . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc' &&
-  . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc'
-fi
 
 ######################################################
 for config_file ($HOME/.zsh/*.zsh) source $config_file
